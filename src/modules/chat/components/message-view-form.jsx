@@ -131,20 +131,18 @@ export default function MessageViewWithForm({ chatId }) {
     router,
   ]);
 
-  const handleSubmit = () => {
-    if (!input.trim()) return;
+  const handleSubmit = ({text}) => {
+    if (!text ||!text.trim()) return;
 
     sendMessage(
-      { text: input },
+      { text },
       {
         body: {
           model: selectedModel,
           chatId,
-        
         },
       }
     );
-    setInput("");
   };
 
   const handleRetry = () => {
