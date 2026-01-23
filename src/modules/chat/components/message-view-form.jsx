@@ -88,6 +88,24 @@ export default function MessageViewWithForm({ chatId }) {
     api: "/api/chat",
   });
 
+  const STREAM_TIMEOUT_MS = 8000;
+
+useEffect(() => {
+  if (status !== "submitted") return;
+
+  const timeout = setTimeout(() => {
+    const hasAssistantReply = messages.some(
+      (m) => m.role === "assistant"
+    );
+
+    if (!hasAssistantReply) {
+      console.warn("Model produced no output — stopping request");
+      stop(); // cancels hanging / dead model request
+    }
+  }, STREAM_TIMEOUT_MS);
+
+  return () => clearTimeout(timeout);
+}, [status, messages, stop]);
 
   useEffect(() => {
     if (data?.data?.model && !selectedModel) {
@@ -146,6 +164,8 @@ export default function MessageViewWithForm({ chatId }) {
   };
 
   const handleRetry = () => {
+    const last = messages[messages.length - 1];
+    if (last?.role !== "assistant") return;
     regenerate();
   };
 
